@@ -1,0 +1,5 @@
+efficientnet-pytorch==0.7.0
+torchvision==0.4.1
+PyYAML==5.4.1
+tqdm==4.56.0
+opencv-python
