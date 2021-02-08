@@ -1,10 +1,10 @@
 import os
-import torch
-import numpy as np
 
-from torch.utils.data import Dataset, DataLoader
-from pycocotools.coco import COCO
 import cv2
+import numpy as np
+import torch
+from pycocotools.coco import COCO
+from torch.utils.data import Dataset
 
 
 class CocoDataset(Dataset):
@@ -114,18 +114,23 @@ class Resizer(object):
         self.img_size = img_size
 
     def __call__(self, sample):
+        interpolation = cv2.INTER_LINEAR
         image, annots = sample['img'], sample['annot']
         height, width, _ = image.shape
         if height > width:
+            if height > self.img_size:
+                interpolation = cv2.INTER_AREA
             scale = self.img_size / height
             resized_height = self.img_size
             resized_width = int(width * scale)
         else:
+            if width > self.img_size:
+                interpolation = cv2.INTER_AREA
             scale = self.img_size / width
             resized_height = int(height * scale)
             resized_width = self.img_size
 
-        image = cv2.resize(image, (resized_width, resized_height), interpolation=cv2.INTER_LINEAR)
+        image = cv2.resize(image, (resized_width, resized_height), interpolation=interpolation)
 
         new_image = np.zeros((self.img_size, self.img_size, 3))
         new_image[0:resized_height, 0:resized_width] = image
@@ -160,7 +165,11 @@ class Augmenter(object):
 
 class Normalizer(object):
 
-    def __init__(self, mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]):
+    def __init__(self, mean=None, std=None):
+        if std is None:
+            std = [0.229, 0.224, 0.225]
+        if mean is None:
+            mean = [0.485, 0.456, 0.406]
         self.mean = np.array([[mean]])
         self.std = np.array([[std]])
 
