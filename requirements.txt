@@ -1,4 +1,4 @@
-efficientnet-pytorch==0.7.0
+efficientnet-pytorch==0.7.1
 torchvision==0.8.2
 PyYAML==5.4.1
 tqdm==4.56.0
